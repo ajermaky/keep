@@ -290,8 +290,10 @@ def webform( request, username, repo_name ):
 
         if request.POST.get('detail_data_id'):
 
-            repo.update_data( request.POST, request.FILES )
+            error = repo.update_data( request.POST, request.FILES )
 
+            if error is not None:
+                return HttpResponse(status=404)
 
             # ISN Phase 2 hack to redirect back to patient list with necessary
             # querystring parameters.
@@ -324,7 +326,10 @@ def webform( request, username, repo_name ):
         else:
 
             # Do validation of the data and add to repo!
-            patient_id = repo.add_data( request.POST, request.FILES )
+            patient_id,error = repo.add_data( request.POST, request.FILES )
+
+            if error is not None:
+                return HttpResponse(status=404)
 
             # ISN Phase 2 hack to redirect back to patient list with necessary
             # querystring parameters.

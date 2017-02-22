@@ -210,7 +210,10 @@ class RepoResource( ModelResource ):
         if not self.authorized_create_detail( repo, bundle ):
             return HttpUnauthorized()
 
-        new_id = repo.add_data( request.POST, request.FILES )
+        new_id, error = repo.add_data( request.POST, request.FILES )
+
+        if error is not None:
+            return HttpResponse(status=404)
 
         response_data = { 'success': True, 'id': str( new_id ) }
         return self.create_response( request, response_data )

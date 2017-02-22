@@ -71,7 +71,10 @@ def xml_submission( request, username ):
     _parse_xml_submission( xml_data, root, request.FILES )
 
     # Do basic validation of the data
-    repo.add_data( xml_data, request.FILES )
+    id,error = repo.add_data( xml_data, request.FILES )
+
+    if error is not None:
+        return HttpResponse(status=404)
 
     response = HttpResponse( success_response, mimetype='application/json' )
     response[ 'X-OpenRosa-Version' ] = '1.0'

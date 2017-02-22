@@ -309,6 +309,7 @@ class Repository( models.Model ):
         validated_data, valid_files = validate_and_format(fields, data, files)
 
         db.data.update( {"_id":ObjectId( data['detail_data_id'] )},{"$set": { 'data': validated_data, 'timestamp':datetime.utcnow() }} )
+        error = db.error()
 
         # Once we save the repo data, save the files to S3
         if len( valid_files.keys() ) > 0:
@@ -324,6 +325,8 @@ class Repository( models.Model ):
                                         file_to_upload.name )
 
                 storage.save( s3_url, file_to_upload )
+
+        return error
 
     def add_data( self, data, files ):
         """
@@ -360,6 +363,7 @@ class Repository( models.Model ):
         logger.info( repo_data )
 
         new_data_id = db.data.insert( repo_data )
+        error = db.error()
 
         # Once we save the repo data, save the files to S3
         if len( valid_files.keys() ) > 0:
@@ -376,7 +380,7 @@ class Repository( models.Model ):
 
                 storage.save( s3_url, file_to_upload )
 
-        return new_data_id
+        return new_data_id,error
 
     def add_task( self, task_id, task_type ):
         '''
