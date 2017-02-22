@@ -111,6 +111,7 @@ in portion.
 ## Install front-end dependencies
 
     npm install
+    node_modules/.bin/bower install
 
 ## Build front-end assets
 

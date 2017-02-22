@@ -3,6 +3,7 @@
 *.db
 *.db.bak
 *.log
+.idea
 
 # OS files
 .DS_Store
