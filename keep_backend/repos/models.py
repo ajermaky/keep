@@ -310,6 +310,7 @@ class Repository( models.Model ):
 
         db.data.update( {"_id":ObjectId( data['detail_data_id'] )},{"$set": { 'data': validated_data, 'timestamp':datetime.utcnow() }} )
         error = db.error()
+        logger.info( {"message": "I was updated, i guess i am called","data": data} )
 
         # Once we save the repo data, save the files to S3
         if len( valid_files.keys() ) > 0:
@@ -354,15 +355,45 @@ class Repository( models.Model ):
                 else:
                     count += 1
 
+
+        ## Assumption we have everyhthing here...
+        # db.data.find({});
+        #Patient list:
+        #db.data.find({"data.patient_id": validated_data.patient_id})
+        #if not null, return!
+
         repo_data = {
             'label': self.name,
             'repo': ObjectId( self.mongo_id ),
             'data': validated_data,
             'timestamp': datetime.utcnow() }
+        #
+        # if self.name =="patient_list":
+        #     #find patient id if exists replace
+        #     pat_list_cursor = db.data.find({"data.patient_id":validated_data["patient_id"],"label":self.name,"_dirty":{"$exists": False}})
+        #     if pat_list_cursor.count() is not 0:
+        #         pat = pat_list_cursor.next()
+        #         repo_data["_id"]=pat["_id"]
+        if "p03" in self.name:
+            pat_list_cursor = db.data.find(
+                {"data.patient_id": validated_data["patient_id"],
+                 "data.rec_dtime": validated_data["rec_dtime"],
+                 "data.provider_id": validated_data["provider_id"],
+                 "label": self.name, "_dirty": {"$exists": False}})
+        else:
+            pat_list_cursor = db.data.find(
+                {"data.patient_id": validated_data["patient_id"],
+                 "data.provider_id": validated_data["provider_id"],
+                 "label": self.name, "_dirty": {"$exists": False}})
+
+        if pat_list_cursor is not None and pat_list_cursor.count() is not 0:
+            pat = pat_list_cursor.next()
+            if pat is not None:
+                repo_data["_id"] = pat["_id"]
 
         logger.info( repo_data )
 
-        new_data_id = db.data.insert( repo_data )
+        new_data_id = db.data.save( repo_data )
         error = db.error()
 
         # Once we save the repo data, save the files to S3
