@@ -374,7 +374,7 @@ class Repository( models.Model ):
         #     if pat_list_cursor.count() is not 0:
         #         pat = pat_list_cursor.next()
         #         repo_data["_id"]=pat["_id"]
-        if "p03" in self.name:
+        if "p03" in self.name or "q06" in self.name:
             pat_list_cursor = db.data.find(
                 {"data.patient_id": validated_data["patient_id"],
                  "data.rec_dtime": validated_data["rec_dtime"],
